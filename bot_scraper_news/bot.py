@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 from filter_urls import filter_urls
 
+
+
+
 url_base_politica = "https://www.portalbr7.com/category/politica/"
 
 res = requests.get(url_base_politica, headers={'User-Agent': 'Mozilla/5.0'})
