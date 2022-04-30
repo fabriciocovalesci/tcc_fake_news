@@ -3,7 +3,8 @@ import re
 exclude_urls = [
     'https://www.portalbr7.com/category/politica/', 'https://www.portalbr7.com/category/curiosidades/',
     'https://www.portalbr7.com/contato/', 'https://www.portalbr7.com/politica-de-privacidade-2/',
-    'https://www.portalbr7.com/', 'https://www.portalbr7.com/2022/04/28/%ef%bf%bc%ef%bf%bc-2/#comments'
+    'https://www.portalbr7.com/', 'https://www.portalbr7.com/2022/04/28/%ef%bf%bc%ef%bf%bc-2/#comments',
+    'https://www.portalbr7.com/category/atualidades/'
 ]
 
 domain = 'https://www.portalbr7.com/'
