@@ -1,7 +1,5 @@
-from cgitb import text
 import requests
 from bs4 import BeautifulSoup
-import emoji
 import re
 import urllib3
 from datetime import date, datetime, timedelta
@@ -21,7 +19,9 @@ BLOCK_LIST = [
     'script',
     'webkit',
     'footer',
-    'figure'
+    'figure',
+    'blockquote',
+    'figcaption'
 ]
 
 def format_date(date):
@@ -54,12 +54,10 @@ def format_date(date):
     return date_formated
 
 
-def remove_emojis(text):
-    return ''.join(c for c in text if c not in emoji.UNICODE_EMOJI)
-
 
 def request_site(url):
-    result = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.41 Safari/537.36'}
+    result = requests.get(url, headers=headers)
     return result.content
 
 def function_soup(content):
@@ -87,8 +85,13 @@ def scraping_site(url):
         data_site['date'] = date_pt_br #format_date(date_pt_br.split('de'))
         
         div = soup.find('div', {"class": "content-inner"})
+        children = div.findChildren("p" , recursive=False)
         
-        text_elements = [t for t in div.find_all(text=True) if t.parent.name not in BLOCK_LIST]
+        text_elements = []
+        for child in children:
+            if len(child.get_text()) != 0:
+                text_elements.append(child.get_text().strip())
+
         data_site['text'] = text_elements
         return data_site
     except:
@@ -110,8 +113,8 @@ date_publish_site = format_date(date_pt_br.split('de'))
 date_request_now = datetime.today().date()
 
 list_content = []
-# if abs(date_publish_site - date_request_now).days == 1:
-if date_publish_site == date_request_now:
+if abs(date_publish_site - date_request_now).days == 1:
+# if date_publish_site == date_request_now:
     for url in list_urls:
         content =  scraping_site(url)
         if len(content) != 0:
