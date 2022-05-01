@@ -1,7 +1,11 @@
+#!/usr/bin/env python3
+
 import re
+from types import coroutine
 import requests
 from bs4 import BeautifulSoup
-
+import aiohttp
+import asyncio
 
 EXCLUD_URLS = [
     'https://www.portalbr7.com/category/politica/', 'https://www.portalbr7.com/category/curiosidades/',
@@ -20,17 +24,21 @@ class PortalR7Bot:
         else:
             raise TypeError("Domain Portal R7 invalida.")
         
-    def _request_site(self, url):
-        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.41 Safari/537.36'}
-        result = requests.get(url, headers=headers)
-        return result.content
     
-    def _object_soup(self, html):
+    async def _request_site_async(self, url: str) -> str:
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.41 Safari/537.36'}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                html = await response.text()
+                return html
+    
+    
+    def _object_soup(self, html: str) -> object:
         soup = BeautifulSoup(html, 'html.parser')
         return soup
     
     
-    def _filter_urls(self):
+    async def _filter_urls(self) -> list:
         """Description
 
         Args:
@@ -39,7 +47,9 @@ class PortalR7Bot:
         Returns:
             list: List of string with valid url
         """
-        html_page = self._request_site(self.base_url_politica)
+        task = asyncio.create_task(coro=self._request_site_async(self.base_url_politica))
+        html_page = await task
+        
         soup = self._object_soup(html_page)
         list_url = []    
         for a in soup.find_all('a', href=True):
@@ -48,16 +58,20 @@ class PortalR7Bot:
         return list_url
         
         
-    def _scraping_site(self, url):
+    async def _scraping_site(self, url: str) -> list:
         try:
             data_site = {
                 "title": "",
                 "date": "",
                 "domain": self.domain,
                 "url": url,
+                "author": "",
                 "text": []
             }
-            content = self._request_site(url)
+            
+            task = asyncio.create_task(coro=self._request_site_async(url))
+            content = await task
+            
             soup = self._object_soup(content)
             data_site['title'] = soup.find('h1', {"class": "jeg_post_title"}).text
             
@@ -77,15 +91,17 @@ class PortalR7Bot:
             return data_site
         except:
             return []
+    
         
-    def get_text(self):
+    async def get_text(self) -> list:
         result = []
-        list_urls = self._filter_urls()
-        for url in list_urls[0:10]:
-            content =  self._scraping_site(url)
+        list_urls = await self._filter_urls()
+        for url in list_urls[0:2]:
+            content = await self._scraping_site(url)
             if len(content) != 0:
                 result.append(content)
                 print(f"Add new title: {content['title']} | url {content['url']}")
         return result
+
             
     

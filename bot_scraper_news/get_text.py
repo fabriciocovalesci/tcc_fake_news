@@ -4,9 +4,9 @@ import re
 import urllib3
 from datetime import date, datetime, timedelta
 
-from filter_urls import filter_urls
 
-BASE_URL_POLITICA = "https://www.portalbr7.com/category/politica/"
+
+BASE_URL_POLITICA = "https://noticias.uol.com.br/politica/"
 
 BLOCK_LIST = [
     '[document]',
@@ -65,26 +65,28 @@ def function_soup(content):
     return soup
 
 
-def scraping_site(url):
+def scraping_site(url, date):
     if len(urllib3.get_host(url)) != 0:
         domain = urllib3.get_host(url)[1]
     try:
         data_site = {
             "title": "",
-            "date": "",
+            "date": date,
             "domain": domain,
             "url": url,
+            "author": "",
             "text": []
         }
         content = request_site(url)
         soup = function_soup(content)
-        data_site['title'] = soup.find('h1', {"class": "jeg_post_title"}).text
-        
-        divs = soup.findChild("div", {"class": "jeg_meta_date"})
-        date_pt_br = divs.find('a').text
-        data_site['date'] = date_pt_br #format_date(date_pt_br.split('de'))
-        
-        div = soup.find('div', {"class": "content-inner"})
+        data_site['title'] = soup.find('i', {"class": "custom-title"}).text
+        author = soup.find('p', { "class": "p-author" }).text
+        if author:
+            data_site['author'] = author
+        else:
+            data_site['author'] = "Colunista do UOL"
+                    
+        div = soup.find('div', {"class": "text"})
         children = div.findChildren("p" , recursive=False)
         
         text_elements = []
@@ -98,30 +100,48 @@ def scraping_site(url):
         return []
 
 
+domain = 'https://www.uol.com.br/'
+
+def filter_urls(soup, date):
+    """Description
+ 
+    Args:
+        soup (Object): Instance type BeautifulSoup
+
+    Returns:
+        list: List of string with valid url
+    """
+    list_url = []
+    divs = soup.find('div', { "class": "flex-wrap" }) 
+    for div in divs:
+        if div.find('a') != -1 and div.find('a') != None:
+            date_consult = div.find('time', { 'class' : 'thumb-date' }).get_text()[0:10]
+            date_formated = datetime.strptime(date_consult, "%d/%m/%Y").date()
+            if date_formated == date:
+                list_url.append({ "date": date_consult , "url": div.find('a').get('href')})
+    return list_url
 
 html_page = request_site(BASE_URL_POLITICA)
 SOUP_BASE_URL = function_soup(html_page)
 
-list_urls = filter_urls(SOUP_BASE_URL)
 
-divs = SOUP_BASE_URL.findChild("div", {"class": "jeg_meta_date"})
+list_urls = filter_urls(SOUP_BASE_URL, datetime.now().date())
 
 
-date_pt_br = divs.find('a').text
 
-date_publish_site = format_date(date_pt_br.split('de'))
-date_request_now = datetime.today().date()
+# date_pt_br = divs.find('a').text
+
+# date_publish_site = format_date(date_pt_br.split('de'))
+# date_request_now = datetime.today().date()
 
 list_content = []
-if abs(date_publish_site - date_request_now).days == 1:
-# if date_publish_site == date_request_now:
-    for url in list_urls:
-        content =  scraping_site(url)
-        if len(content) != 0:
-            list_content.append(content)
-            print(f"Add new title: {content['title']} | url {content['url']}")
+for url in list_urls:
+    content =  scraping_site(url['url'], url['date'])
+    if len(content) != 0:
+        list_content.append(content)
+        # print(f"Add new title: {content['title']} | url {content['url']}")
     
+print(list_content[3])
 # https://github.com/brauliotegui/FAKE/blob/master/NLP_model.ipynb
 
 
-print(list_content)

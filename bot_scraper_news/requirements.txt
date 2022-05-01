@@ -1,2 +1,4 @@
 beautifulsoup4==4.11.1
 requests==2.27.1
+asyncio==3.4.3
+aiohttp==3.8.1
