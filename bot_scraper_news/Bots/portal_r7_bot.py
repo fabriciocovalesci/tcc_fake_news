@@ -69,6 +69,11 @@ class PortalR7Bot:
         return date_formated
     
     
+    def _clean_data(self, data):
+        text = data.replace("“", '').replace("”", '').replace("`", '').replace("´", '').replace("’", '').replace("‘", '').strip()
+        return text
+    
+    
     async def _filter_urls(self, search_date) -> list:
         """Description
 
@@ -94,7 +99,7 @@ class PortalR7Bot:
             return list_url
         except Exception as err:
             print(f"ERROR - Portal R7: function [_filter_urls()] : {err}")
-        
+                    
         
     async def _scraping_site(self, url: str, date: str) -> list:
         try:
@@ -102,8 +107,9 @@ class PortalR7Bot:
                 "title": "",
                 "date": date,
                 "domain": self.domain,
+                "status": "",
                 "url": url,
-                "author": "",
+                "author": "Colunista Portal R7",
                 "text": []
             }
             
@@ -111,7 +117,11 @@ class PortalR7Bot:
             content = await task
             
             soup = self._object_soup(content)
-            data_site['title'] = soup.find('h1', {"class": "jeg_post_title"}).text
+            title = soup.find('h1', {"class": "jeg_post_title"}).text
+            if title:
+                data_site['title'] = self._clean_data(title)
+            else:
+                data_site['title'] = title
             
             # Get date with soup
             # divs = soup.findChild("div", {"class": "jeg_meta_date"})
@@ -124,8 +134,10 @@ class PortalR7Bot:
             text_elements = []
             for child in children:
                 if len(child.get_text()) != 0:
-                    text_elements.append(child.get_text().strip())
-
+                    text_elements.append(self._clean_data(child.get_text()))
+                    
+            text_elements = ''.join(map(str,text_elements))
+            
             data_site['text'] = text_elements
             return data_site
         except Exception as err:
@@ -141,7 +153,7 @@ class PortalR7Bot:
                 content = await self._scraping_site(url['url'], url['date'])
                 if len(content) != 0:
                     result.append(content)
-                    # print(f"Add new title: {content['title']} | url {content['date']}")
+                    print(f"Add new title: {content['title']} | url {content['url']}")
             return result
         except Exception as err:
             print(f"ERROR - Portal R7: function [get_text()] : {err}")

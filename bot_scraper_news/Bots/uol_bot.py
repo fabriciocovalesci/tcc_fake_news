@@ -24,13 +24,29 @@ class UolBot:
                     return html
         except Exception as err:
             print(f"ERROR - UOL: function [_request_site_async()] : {err}")
+            
+    def _clean_data(self, data):
+        text = data.replace("“", '').replace("”", '').replace("`", '').replace("´", '').replace("’", '').replace("‘", '').strip()
+        return text
     
     
     def _object_soup(self, html):
         soup = BeautifulSoup(html, 'html.parser')
         return soup
     
+    def _is_date(self, string):
+        """
+        Return whether the string can be interpreted as a date.
+        
+        :param string: str, string to check for date
+        """
+        try: 
+            datetime.strptime(string, "%d/%m/%Y")
+            return True
+        except ValueError:
+            return False
     
+
     async def _filter_urls(self, date):
         """Description
     
@@ -65,6 +81,7 @@ class UolBot:
                 "title": "",
                 "date": date,
                 "domain": self.domain,
+                "status": "",
                 "url": url,
                 "author": "",
                 "text": []
@@ -76,12 +93,12 @@ class UolBot:
             soup = self._object_soup(content)
             title = soup.find('i', {"class": "custom-title"}).text
             if title:
-                data_site['title'] = soup.find('i', {"class": "custom-title"}).text
+                data_site['title'] = self._clean_data(title)
             else:
                 data_site['title'] = ""
                 
-            author = soup.find('p', { "class": "p-author" }).text
-            if author:
+            author = soup.find('p', { "class": "p-author" }).text            
+            if self._is_date(author[:10]) == False:
                 data_site['author'] = author
             else:
                 data_site['author'] = "Colunista do UOL"
@@ -92,7 +109,9 @@ class UolBot:
             text_elements = []
             for child in children:
                 if len(child.get_text()) != 0:
-                    text_elements.append(child.get_text().strip())
+                    text_elements.append(self._clean_data(child.get_text()))
+                    
+            text_elements = ''.join(map(str,text_elements))
 
             data_site['text'] = text_elements
             return data_site
@@ -109,7 +128,7 @@ class UolBot:
                 content = await self._scraping_site(url['url'], url['date'])
                 if content:
                     result.append(content)
-                    # print(f"Add new title: {content['title']} | url {content['date']}")
+                    print(f"Add new title: {content['title']} | url {content['url']}")
             return result
         except Exception as err:
             print(f"ERROR - UOL: function [get_text()] : {err}")

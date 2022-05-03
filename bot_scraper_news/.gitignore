@@ -38,6 +38,7 @@ MANIFEST
 *.manifest
 *.spec
 
+fake-news-firebase.json
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
