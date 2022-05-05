@@ -28,10 +28,14 @@ pipeline {
     stages {
         stage('Load image') {
             steps {
-                echo "Downloading image docker hub ..."
-                sh "docker pull ${IMAGE_NAME}"
+                script {
+                    echo "Downloading image docker hub ..."
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerHubId') {            
+                        sh "docker pull ${IMAGE_NAME}"                
+                    }    
+                }        
+              } 
             }
-        }
         stage('Run container') {
             steps {
                 script {
