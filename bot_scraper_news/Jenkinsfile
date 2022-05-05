@@ -1,0 +1,63 @@
+
+def sendSuccessEmail(price) {
+    emailext body: "\nFinalizado com sucesso \nBuild finazalido ${BUILD_NUMBER}\n",
+        mimeType: 'text/html',
+        subject: "<span>[Jenkins] Build Finalizado</span>",
+        to: "fabcovalesci@gmail.com"
+}
+
+def sendBuildFailureEmail(price) {
+    emailext body: "\n<p>Finalizado com sucesso \nBuild finazalido ${BUILD_NUMBER}\n",
+        mimeType: 'text/html',
+        subject: "<span>[Jenkins] Build Failure</span>",
+        to: "fabcovalesci@gmail.com"
+}
+
+
+// TZ=America/Sao_Paulo
+
+// H/2 * * * *
+
+
+def IMAGE_NAME = "fabriciocov/acta_bot:latest"
+
+pipeline {
+    
+    agent any
+
+    stages {
+        stage('Load image') {
+            steps {
+                echo "Downloading image docker hub ..."
+                sh "docker pull ${IMAGE_NAME}"
+            }
+        }
+        stage('Run container') {
+            steps {
+                script {
+                    //run = sh(script: "docker run ${IMAGE_NAME}", returnStdout: true) corn 5 0 * * * -> 00:05
+                    run = sh(script: "docker run ${IMAGE_NAME}")
+                }
+            }
+        }
+        stage('Delete Image') {
+            steps {
+                sh """ docker rmi -f \$(docker images --filter=reference="${IMAGE_NAME}" --quiet) """
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Finalizando pipeline'
+            deleteDir()
+        }
+        success {
+            echo 'Finalizado com sucesso'
+            sendSuccessEmail()
+        }
+         failure {
+            echo 'Falhou :('
+            sendBuildFailureEmail()
+        }
+    }
+}
