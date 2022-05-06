@@ -1,9 +1,6 @@
-# tcc_fake_news
+# Fake News Classifier
 
 
-### Atenção: 
-
-- Versão do python utilizada no bot **3.10.0** ou acima.
 
 
 
