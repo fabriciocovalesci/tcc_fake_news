@@ -27,7 +27,7 @@ def oneOrManyNewsEntity(entity, number) -> list:
 
 def predictNewsEntity(entity):
     item = random.choice([newEntity(item.to_dict()) for item in entity])
-    return predict(item.get('text'))
+    return predict(item.get('text'), item.get('url'))
 
 
 def createNewEntity(entity):
