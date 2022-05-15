@@ -12,6 +12,11 @@ def newEntity(item) -> dict:
         "title":  item.get("title"),
         "url":  item.get("url")
     }
+
+def onlyNewEntity(item) -> dict:
+    return {
+        "text": item.get("text")
+    }
     
 
 def newsEntity(entity) -> dict:
@@ -26,19 +31,25 @@ def oneOrManyNewsEntity(entity, number) -> list:
     return item
 
 def predictNewsEntity(entity):
-    item = random.choice([newEntity(item.to_dict()) for item in entity])
-    return predict(item.get('text'), item.get('url'))
+    item = [newEntity(item.to_dict()) for item in entity]
+    return item
+
+def predictNewsEntityHome(entity):
+    item = newEntity(entity)
+    return predict(item.get('text'))
 
 
 def createNewEntity(entity):
-    result_predict = predict(entity.get('text'))
-    # print({{i:str(entity[i]) for i in entity}})
-    # author, date, domain, status, text, title, url = dict(*entity)
-    # corpus = tuple(*entity)
-    # print(author)
-    print(result_predict)
+    try:
+        for item in entity.get('data'):
+            item["status"] = predict(item.get('text')).get("modelo")
+            db.collection("news").add(item)
+        return entity.get('data')
+    except Exception as err:
+        print(f"ERROR: createNewEntity() | {err}")
 
-    return entity
+def predictOnlyNewsEntity(entity):
+    return predict(onlyNewEntity(entity).get('text'))
     
 # def serializeDict(a) -> dict:
 #     return {**{i:str(a[i]) for i in a if i=='_id'},**{i:a[i] for i in a if i!='_id'}}

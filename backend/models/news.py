@@ -1,4 +1,5 @@
 from pydantic import BaseModel, validator
+from typing import List
 
 class News(BaseModel):
     author: str
@@ -8,6 +9,14 @@ class News(BaseModel):
     text: str
     title: str
     url: str
+    
+    
+class OnlyNew(BaseModel):
+    text: str
+
+
+class NewsList(BaseModel):
+    data: List[News]
     
     
 class Domain(BaseModel):

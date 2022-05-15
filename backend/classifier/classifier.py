@@ -27,7 +27,7 @@ def process_text(text):
 
 
 
-def predict(new_text, link):    
+def predict(new_text):    
     
     article = [new_text]
     vectorized_text = joblib_vect.transform(article)
@@ -38,4 +38,4 @@ def predict(new_text, link):
     probabilidade = joblib_model.predict_proba(vectorized_text)
     probabilidade = round(probabilidade[::,1].mean()*100, 2)
     
-    return { "modelo": int(prediction[0]), "proba": probabilidade, "link": link, "text": new_text }
+    return { "modelo": int(prediction[0]), "proba": probabilidade }
