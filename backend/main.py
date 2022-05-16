@@ -14,25 +14,23 @@ app = FastAPI(
 app.include_router(new)
 
 
-HOST = "127.0.0.1"
+HOST = "3.91.38.127"
 PORT = 8000
 
 # run -> uvicorn main:app --host 127.0.0.1 --port 80
 
 # python3 -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-    # import uvicorn
+    import uvicorn
     
-    # uvicorn.run(app,  # type: ignore
-    #     "port"= PORT,
-    #     "host"= HOST,
-    #     # use_colors=True,
-    #     "reload"= True,
-    #     "workers"=2,
-    #     # debug=True,
-    #     )
+    uvicorn.run(app,  # type: ignore
+        port= PORT,
+        host= HOST,
+        use_colors=True,
+        debug=False,
+        )
 
 
 """
