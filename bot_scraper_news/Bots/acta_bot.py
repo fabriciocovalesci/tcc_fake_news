@@ -4,6 +4,7 @@ import re
 import os
 from bs4 import BeautifulSoup
 import asyncio
+import requests
 import json
 
 from .database import DataBase
@@ -53,6 +54,17 @@ class ActaBot:
         json_object = json.dumps(self.obj_scraping, indent=4, ensure_ascii=False) 
         print(json_object)
         
+    def send_news(self):
+        try:
+            host = "http://localhost:8000/create/news/predict"
+            data = {
+                "data": self.obj_scraping[0] + self.obj_scraping[1]
+                } 
+            res = requests.post(url=host, data=json.dumps(data, ensure_ascii=True))
+            print(f"Status {res.status_code}")
+        except Exception as err:
+            print(f"ERROR: send_news() | {err}")
+                
     def insert_data_base(self):
         if len(self.obj_scraping[0]) != 0:
             for item in self.obj_scraping[0]:
