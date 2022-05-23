@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from routes.news import new
 
@@ -11,10 +12,22 @@ app = FastAPI(
     version="1.0.0",
 )
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 app.include_router(new)
 
 
 HOST = "3.91.38.127"
+HOST = "localhost"
 PORT = 8000
 
 # run -> uvicorn main:app --host 127.0.0.1 --port 80

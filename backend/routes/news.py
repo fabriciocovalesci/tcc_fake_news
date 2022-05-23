@@ -10,7 +10,7 @@ import json
 
 new = APIRouter()
 
-@new.get('/')
+@new.get('/home')
 async def find_all_news():
     results = db.collection("news").limit(10).get()    
     documents = []
