@@ -56,7 +56,7 @@ class ActaBot:
         
     def send_news(self):
         try:
-            host = "http://localhost:8000/create/news/predict"
+            host = "http://3.91.38.127/create/news/predict"
             data = {
                 "data": self.obj_scraping[0] + self.obj_scraping[1]
                 } 
