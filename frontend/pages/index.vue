@@ -8,7 +8,7 @@
             style="margin-top: 10px"
             v-model="messages"
             label="Cole noticia para verificar"
-          ></v-textarea>
+          ></v-textarea> 
 
           <v-container px-0>
             <v-btn @click="cleanText">Limpar</v-btn>
