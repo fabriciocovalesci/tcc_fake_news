@@ -27,7 +27,7 @@ app.include_router(new)
 
 
 HOST = "3.91.38.127"
-HOST = "localhost"
+HOST = "localhost" 
 PORT = 8000
 
 # run -> uvicorn main:app --host 127.0.0.1 --port 80
