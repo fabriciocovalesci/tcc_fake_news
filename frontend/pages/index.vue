@@ -45,7 +45,7 @@ export default {
       if (this.messages.length !== 0) {
         const article = { text: this.messages };
         const predict_post = await this.$axios.post(
-          "http://localhost:8000/news/only/predict",
+          "https://api-backend-fake-news.herokuapp.com/news/only/predict",
           article
         );
         this.predict.status = predict_post.data.modelo;
@@ -63,11 +63,12 @@ export default {
     },
   },
 
-  // async asyncData({ $axios }) {
-  //   const news = await $axios.get("http://localhost:8000/home")
-  //   return {
-  //     news: news.data
-  //   }
-  // }
+  async asyncData({ $axios }) {
+    const news = await $axios.get("https://api-backend-fake-news.herokuapp.com/home")
+    console.log(news.data)
+    return {
+      news: news.data
+    }
+  }
 };
 </script>
